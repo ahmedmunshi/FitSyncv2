@@ -2,3 +2,7 @@ Flask
 Flask-MongoEngine
 Flask-JWT-Extended
 python-dotenv
+Flask-CORS
+pymongo
+Werkzeug
+validate-email-address
