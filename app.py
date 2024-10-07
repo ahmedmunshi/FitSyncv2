@@ -2,6 +2,7 @@ import os
 from flask import Flask, render_template, request, redirect, url_for, jsonify, make_response
 from flask_mongoengine import MongoEngine
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+import jwt as pyjwt  # Import PyJWT library for manually decoding JWT tokens
 from werkzeug.security import generate_password_hash, check_password_hash
 from validate_email_address import validate_email
 from dotenv import load_dotenv
@@ -35,10 +36,8 @@ class Activity(db.Document):
 def home_page():
     return render_template('home.html')
 
-
 # Dashboard route
 @app.route('/dashboard')
-@jwt_required()
 def dashboard():
     print("Request cookies:", request.cookies)  # Debug statement
     jwt_token = request.cookies.get('jwt')
@@ -48,14 +47,16 @@ def dashboard():
         return "Token is missing", 401
 
     try:
-        claims = jwt.decode(jwt_token, app.config['JWT_SECRET_KEY'], algorithms=["HS256"])
+        # Decode the JWT using PyJWT library
+        claims = pyjwt.decode(jwt_token, app.config['JWT_SECRET_KEY'], algorithms=["HS256"])
         print(f"Decoded JWT Claims: {claims}")  # Debug statement
-    except Exception as e:
+        user_id = claims.get("sub")  # Get the user ID (subject) from claims
+    except pyjwt.ExpiredSignatureError:
+        print("JWT has expired")  # Debug statement
+        return "Token has expired", 401
+    except pyjwt.InvalidTokenError as e:
         print(f"JWT verification failed: {str(e)}")  # Debug statement
-        return str(e), 401
-
-    user_id = get_jwt_identity()  # This will work as usual
-    print(f"User ID from JWT: {user_id}")  # Debug statement
+        return "Token is invalid", 401
 
     # Check if the user exists in the database
     user = User.objects(id=user_id).first()
@@ -69,11 +70,27 @@ def dashboard():
 
 # Add Activity route
 @app.route('/add-activity', methods=['GET', 'POST'])
-@jwt_required()
 def add_activity():
+    jwt_token = request.cookies.get('jwt')
+
+    if not jwt_token:
+        print("No JWT token found in cookies")  # Debug statement
+        return "Token is missing", 401
+
+    try:
+        # Decode the JWT using PyJWT library
+        claims = pyjwt.decode(jwt_token, app.config['JWT_SECRET_KEY'], algorithms=["HS256"])
+        print(f"Decoded JWT Claims: {claims}")  # Debug statement
+        user_id = claims.get("sub")  # Get the user ID (subject) from claims
+    except pyjwt.ExpiredSignatureError:
+        print("JWT has expired")  # Debug statement
+        return "Token has expired", 401
+    except pyjwt.InvalidTokenError as e:
+        print(f"JWT verification failed: {str(e)}")  # Debug statement
+        return "Token is invalid", 401
+
     if request.method == 'POST':
         data = request.form
-        user_id = get_jwt_identity()
         new_activity = Activity(
             user_id=user_id,
             type=data['type'],
@@ -81,6 +98,7 @@ def add_activity():
         )
         new_activity.save()
         return redirect(url_for('dashboard'))
+
     return render_template('add_activity.html')
 
 # Login route
@@ -132,6 +150,37 @@ def register():
         new_user.save()
         return redirect(url_for('login'))
     return render_template('register.html')
+
+# Profile route
+@app.route('/profile')
+def profile():
+    jwt_token = request.cookies.get('jwt')
+
+    if not jwt_token:
+        return redirect(url_for('login'))
+
+    try:
+        claims = pyjwt.decode(jwt_token, app.config['JWT_SECRET_KEY'], algorithms=["HS256"])
+        user_id = claims.get("sub")
+    except pyjwt.ExpiredSignatureError:
+        return redirect(url_for('login'))
+    except pyjwt.InvalidTokenError:
+        return redirect(url_for('login'))
+
+    user = User.objects(id=user_id).first()
+    if not user:
+        return redirect(url_for('login'))
+
+    return render_template('profile.html', user=user)
+
+# Logout route
+@app.route('/logout')
+def logout():
+    response = make_response(redirect(url_for('home_page')))
+    response.set_cookie('jwt', '', expires=0)
+    return response
+
+
 
 # Forgot Password route
 @app.route('/forgot-password', methods=['GET', 'POST'])
