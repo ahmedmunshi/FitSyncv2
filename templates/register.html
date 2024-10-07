@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - FitSync</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Create an account</h1>
+        <p>Please fill in your details</p>
+        <form method="POST" class="form">
+            <label for="username">Email address</label>
+            <input type="text" name="username" required placeholder="Enter your email">
+
+            <label for="password">Password</label>
+            <input type="password" name="password" required placeholder="Create a password">
+
+            <button type="submit" class="cta-button">Register</button>
+        </form>
+        <p>Already have an account? <a href="/login">Login here.</a></p>
+    </div>
+</body>
+</html>
+

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - FitSync</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        Your Profile
+    </header>
+
+    <div class="container">
+        <div class="profile-container">
+            <h2>Welcome, {{ user.username }}</h2>
+            <p>Email: {{ user.username }}</p>
+            <!-- Additional profile info can go here -->
+        </div>
+
+        <div class="button-container">
+            <a href="/dashboard" class="button">Go to Dashboard</a>
+            <a href="/logout" class="button">Logout</a>
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2024 FitSync. All rights reserved.
+    </footer>
+</body>
+</html>

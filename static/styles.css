@@ -1,0 +1,235 @@
+/* FitSync CSS Styling */
+
+/* General Page Styling */
+body {
+    font-family: 'Libre Franklin', Arial, sans-serif;
+    background-color: #7e99c9; /* Updated color */
+    color: #000000; /* Black */
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Container for centering content */
+.container {
+    width: 90%;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Header Styling */
+header {
+    background-color: #7e99c9; /* Updated color */
+    padding: 20px;
+    text-align: center;
+    color: black;
+    font-size: 2.5em;
+    font-weight: bold;
+    animation: fadeIn 1.5s ease;
+}
+
+/* Buttons Styling */
+.button {
+    background-color: #000000; /* Black */
+    color: #ffffff;
+    border: none;
+    padding: 12px 24px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 1em;
+    margin: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    animation: buttonHover 1.5s infinite alternate;
+}
+
+.button:hover {
+    background-color: #333333;
+    transform: scale(1.1);
+}
+
+.button-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+/* Login and Registration Form Styling */
+.form-container {
+    background-color: #f9f9f9;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+    animation: fadeIn 1.5s ease;
+    margin-top: 20px; /* Center vertically */
+}
+
+input[type="text"], input[type="password"] {
+    width: 100%;
+    padding: 12px;
+    margin: 15px 0;
+    display: inline-block;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-family: 'Libre Franklin', Arial, sans-serif;
+}
+
+/* Form Labels */
+label {
+    margin-top: 15px;
+    font-weight: bold;
+    color: #000000; /* Black */
+}
+
+/* Form Buttons */
+button[type="submit"] {
+    background-color: #000000; /* Black */
+    color: #ffffff;
+    border: none;
+    padding: 15px 20px; /* Increased padding for better UX */
+    text-align: center;
+    display: inline-block;
+    font-size: 1em;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    width: 100%;
+    margin-top: 20px; /* Space above button */
+}
+
+button[type="submit"]:hover {
+    background-color: #333333;
+    transform: scale(1.1);
+}
+
+/* Remember Me Checkbox Styling */
+.remember-me {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.remember-me label {
+    margin-left: 10px;
+}
+
+/* Dashboard and Activities */
+.dashboard {
+    text-align: center;
+    padding-top: 20px;
+}
+
+.activity {
+    background-color: #f0f4fa; /* Light blue for better contrast */
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 5px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    animation: fadeIn 1.5s ease;
+    font-size: 1.2em;
+    color: #000000;
+}
+
+.activity h3 {
+    color: #000000; /* Black */
+}
+
+/* Links Styling */
+.link {
+    color: #000000; /* Black */
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+.link:hover {
+    text-decoration: underline;
+    color: #333333;
+}
+
+/* Footer Styling */
+footer {
+    text-align: center;
+    padding: 20px;
+    background-color: #7e99c9; /* Updated color */
+    color: black;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+    margin-top: auto;
+    font-weight: bold;
+}
+
+/* Flexbox Navigation Styling */
+nav {
+    background-color: #7e99c9; /* Updated color */
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+nav a {
+    color: black;
+    text-decoration: none;
+    font-size: 1.2em;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+nav a:hover {
+    color: #333333;
+}
+
+/* Button Hover Animation */
+@keyframes buttonHover {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Fade In Animation */
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+/* Minimalistic Styling */
+.main-content {
+    text-align: center;
+    padding: 40px;
+    font-size: 1.5em;
+    color: #000000;
+}
+
+.main-content p {
+    font-size: 1em;
+    color: #000000;
+}
+
+.main-content .button {
+    margin-top: 20px;
+}

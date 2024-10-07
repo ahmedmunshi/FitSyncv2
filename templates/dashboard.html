@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - FitSync</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <header>
+        Your Activities
+    </header>
+
+    <div class="container">
+        <div class="dashboard">
+            <div class="activity-container">
+                <!-- Loop through the activities dynamically -->
+                {% if activities %}
+                    {% for activity in activities %}
+                    <div class="activity">
+<h3>{{ activity.type | capitalize }} - {{ activity.distance }} km</h3>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p>No activities found.</p>
+                {% endif %}
+            </div>
+
+            <div class="button-container">
+                <a href="/add-activity" class="button">Add Activity</a>
+                <a href="/" class="button">Back to Home</a>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2024 FitSync. All rights reserved.
+    </footer>
+</body>
+
+</html>

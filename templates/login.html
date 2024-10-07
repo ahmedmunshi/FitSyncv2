@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - FitSync</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        Welcome back
+    </header>
+
+    <div class="container">
+        <div class="form-container">
+            <p>Please enter your details</p>
+            <form method="POST">
+                <label for="username">Email address</label>
+                <input type="text" name="username" required placeholder="Enter your email">
+
+                <label for="password">Password</label>
+                <input type="password" name="password" required placeholder="Your password must contain only numbers">
+
+                <div class="remember-me">
+                    <input type="checkbox" id="remember" name="remember">
+                    <label for="remember">Remember for 30 days</label>
+                </div>
+
+                <a href="/forgot-password" class="link">Forgot password?</a>
+                <button type="submit">Sign in</button>
+            </form>
+        </div>
+
+        <p>Don't have an account? <a href="/register" class="link">Register here.</a></p>
+    </div>
+
+    <footer>
+        &copy; 2024 FitSync. All rights reserved.
+    </footer>
+</body>
+</html>
