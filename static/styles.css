@@ -233,3 +233,8 @@ nav a:hover {
 .main-content .button {
     margin-top: 20px;
 }
+ul {
+    list-style-type: none;
+    padding: 0;
+
+}

@@ -9,35 +9,37 @@
 <body>
     <header>
         <h1>FitSync</h1>
-       <nav>
-    <ul>
-        <li><a href="/dashboard">Dashboard</a></li>
-        <li><a href="/add-activity">Add Activity</a></li>
-        <li><a href="/login" id="login-link">Login</a></li>
-        <li><a href="/register" id="register-link">Register</a></li>
-        <li><a href="/profile" id="profile-link" style="display: none;">Profile</a></li>
-    </ul>
-</nav>
-
-<script>
-    // JavaScript to toggle profile link if JWT token is available
-    document.addEventListener('DOMContentLoaded', function() {
-        const jwtToken = document.cookie.split('; ').find(row => row.startsWith('jwt='));
-        if (jwtToken) {
-            document.getElementById('login-link').style.display = 'none';
-            document.getElementById('register-link').style.display = 'none';
-            document.getElementById('profile-link').style.display = 'block';
-        }
-    });
-</script>
+        <nav>
+            <ul class="nav-list">
+                <li><a href="/dashboard" class="nav-link">Dashboard</a></li>
+                <li><a href="/add-activity" class="nav-link">Add Activity</a></li>
+                <li><a href="/profile" id="profile-link" class="nav-link" style="display: none;">Profile</a></li>
+                <li><a href="/login" id="login-link" class="nav-link">Login</a></li>
+                <li><a href="/register" id="register-link" class="nav-link">Register</a></li>
+                <li><a href="/logout" id="logout-link" class="nav-link" style="display: none;">Logout</a></li>
+            </ul>
+        </nav>
     </header>
 
     <main>
-
+        <!-- Main content here -->
     </main>
 
     <footer>
         <p>&copy; 2024 FitSync. All rights reserved.</p>
     </footer>
+
+    <script>
+        // JavaScript to toggle profile link, login/register links, and user info if JWT token is available
+        document.addEventListener('DOMContentLoaded', function() {
+            const jwtToken = document.cookie.split('; ').find(row => row.startsWith('jwt='));
+            if (jwtToken) {
+                document.getElementById('login-link').style.display = 'none';
+                document.getElementById('register-link').style.display = 'none';
+                document.getElementById('profile-link').style.display = 'block';
+                document.getElementById('logout-link').style.display = 'block';
+            }
+        });
+    </script>
 </body>
 </html>

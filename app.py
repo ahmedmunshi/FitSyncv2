@@ -1,11 +1,12 @@
 import os
 from flask import Flask, render_template, request, redirect, url_for, jsonify, make_response
 from flask_mongoengine import MongoEngine
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, set_access_cookies, unset_jwt_cookies
 import jwt as pyjwt  # Import PyJWT library for manually decoding JWT tokens
 from werkzeug.security import generate_password_hash, check_password_hash
 from validate_email_address import validate_email
 from dotenv import load_dotenv
+from datetime import timedelta
 
 app = Flask(__name__)
 load_dotenv()  # Load environment variables from .env file
@@ -16,6 +17,11 @@ app.config['MONGODB_SETTINGS'] = {
 }
 
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'mysecret141412')
+app.config['JWT_COOKIE_SECURE'] = False  # Should be True in production
+app.config['JWT_TOKEN_LOCATION'] = ['cookies']
+app.config['JWT_ACCESS_COOKIE_PATH'] = '/'  # Make cookie sitewide
+app.config['JWT_COOKIE_CSRF_PROTECT'] = False
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=30)  # Extend the expiration
 
 db = MongoEngine(app)
 jwt = JWTManager(app)
@@ -38,57 +44,18 @@ def home_page():
 
 # Dashboard route
 @app.route('/dashboard')
+@jwt_required()
 def dashboard():
-    print("Request cookies:", request.cookies)  # Debug statement
-    jwt_token = request.cookies.get('jwt')
-
-    if not jwt_token:
-        print("No JWT token found in cookies")  # Debug statement
-        return "Token is missing", 401
-
-    try:
-        # Decode the JWT using PyJWT library
-        claims = pyjwt.decode(jwt_token, app.config['JWT_SECRET_KEY'], algorithms=["HS256"])
-        print(f"Decoded JWT Claims: {claims}")  # Debug statement
-        user_id = claims.get("sub")  # Get the user ID (subject) from claims
-    except pyjwt.ExpiredSignatureError:
-        print("JWT has expired")  # Debug statement
-        return "Token has expired", 401
-    except pyjwt.InvalidTokenError as e:
-        print(f"JWT verification failed: {str(e)}")  # Debug statement
-        return "Token is invalid", 401
-
-    # Check if the user exists in the database
+    user_id = get_jwt_identity()
     user = User.objects(id=user_id).first()
-    if not user:
-        return "User not found", 401  # Debug statement
-
     activities = Activity.objects(user_id=user_id)
-    print(f"Activities fetched: {activities}")  # Debug statement
-
     return render_template('dashboard.html', activities=activities)
 
 # Add Activity route
 @app.route('/add-activity', methods=['GET', 'POST'])
+@jwt_required()
 def add_activity():
-    jwt_token = request.cookies.get('jwt')
-
-    if not jwt_token:
-        print("No JWT token found in cookies")  # Debug statement
-        return "Token is missing", 401
-
-    try:
-        # Decode the JWT using PyJWT library
-        claims = pyjwt.decode(jwt_token, app.config['JWT_SECRET_KEY'], algorithms=["HS256"])
-        print(f"Decoded JWT Claims: {claims}")  # Debug statement
-        user_id = claims.get("sub")  # Get the user ID (subject) from claims
-    except pyjwt.ExpiredSignatureError:
-        print("JWT has expired")  # Debug statement
-        return "Token has expired", 401
-    except pyjwt.InvalidTokenError as e:
-        print(f"JWT verification failed: {str(e)}")  # Debug statement
-        return "Token is invalid", 401
-
+    user_id = get_jwt_identity()
     if request.method == 'POST':
         data = request.form
         new_activity = Activity(
@@ -98,7 +65,6 @@ def add_activity():
         )
         new_activity.save()
         return redirect(url_for('dashboard'))
-
     return render_template('add_activity.html')
 
 # Login route
@@ -118,9 +84,8 @@ def login():
                 print("Password match!")  # Debug statement
                 token = create_access_token(identity=str(user.id))
                 print(f"Generated JWT: {token}")  # Debug statement to see the generated token
-                response = make_response(redirect(url_for('dashboard')))
-                response.set_cookie('jwt', token, httponly=True, secure=False)  # Store token as HTTP-only cookie
-                print(f"Set cookie: {response.headers.get('Set-Cookie')}")  # Debug statement to check cookie
+                response = make_response(redirect(url_for('profile')))
+                set_access_cookies(response, token)
                 return response
             else:
                 print("Password mismatch!")  # Debug statement
@@ -153,34 +118,11 @@ def register():
 
 # Profile route
 @app.route('/profile')
+@jwt_required()
 def profile():
-    jwt_token = request.cookies.get('jwt')
-
-    if not jwt_token:
-        return redirect(url_for('login'))
-
-    try:
-        claims = pyjwt.decode(jwt_token, app.config['JWT_SECRET_KEY'], algorithms=["HS256"])
-        user_id = claims.get("sub")
-    except pyjwt.ExpiredSignatureError:
-        return redirect(url_for('login'))
-    except pyjwt.InvalidTokenError:
-        return redirect(url_for('login'))
-
+    user_id = get_jwt_identity()
     user = User.objects(id=user_id).first()
-    if not user:
-        return redirect(url_for('login'))
-
     return render_template('profile.html', user=user)
-
-# Logout route
-@app.route('/logout')
-def logout():
-    response = make_response(redirect(url_for('home_page')))
-    response.set_cookie('jwt', '', expires=0)
-    return response
-
-
 
 # Forgot Password route
 @app.route('/forgot-password', methods=['GET', 'POST'])
@@ -193,6 +135,13 @@ def forgot_password():
             return "A reset link has been sent to your email address."  # Placeholder response
         return "Email not found.", 404
     return render_template('forgot_password.html')
+
+# Logout route
+@app.route('/logout')
+def logout():
+    response = make_response(redirect(url_for('home_page')))
+    unset_jwt_cookies(response)
+    return response
 
 if __name__ == '__main__':
     app.run(port=5005)
