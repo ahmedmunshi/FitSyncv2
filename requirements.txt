@@ -7,4 +7,4 @@ pymongo
 Werkzeug~=2.0.3
 validate-email-address
 PyJWT~=2.9.0
-mongoengine~=0.29.1
+mongoengine~=0.29.1mog
