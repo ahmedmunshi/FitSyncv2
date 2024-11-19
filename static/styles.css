@@ -8,7 +8,7 @@ body {
     margin: 0;
     padding: 0;
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     height: 100vh;
     flex-direction: column;
@@ -132,11 +132,30 @@ button[type="submit"]:hover {
     padding-top: 20px;
 }
 
+/* Today Activities Styling */
+.today-activities {
+    background-color: #7e99c9; /* Light cyan color */
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Past Activities Styling */
+.past-activities {
+    font-size: small;
+    background-color: #dbdbdb; /* Light yellow color */
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 8px;
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Individual activity box styling */
 .activity {
-    background-color: #f0f4fa; /* Light blue for better contrast */
+    margin-bottom: 15px; /* Space between each activity */
     padding: 15px;
-    margin: 10px 0;
-    border-radius: 5px;
+    background-color: #ffffff;
+    border-radius: 8px;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
     animation: fadeIn 1.5s ease;
     font-size: 1.2em;

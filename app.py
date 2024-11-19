@@ -6,7 +6,8 @@ import jwt as pyjwt  # Import PyJWT library for manually decoding JWT tokens
 from werkzeug.security import generate_password_hash, check_password_hash
 from validate_email_address import validate_email
 from dotenv import load_dotenv
-from datetime import timedelta
+from datetime import datetime, timedelta
+import pytz
 
 app = Flask(__name__)
 load_dotenv()  # Load environment variables from .env file
@@ -36,7 +37,8 @@ class Activity(db.Document):
     user_id = db.ReferenceField(User, required=True)
     type = db.StringField(required=True)
     distance = db.FloatField(required=True)
-
+    date = db.DateTimeField(default=datetime.now(pytz.timezone('America/Toronto')))  # Default to Toronto's Eastern Time
+    
 # Home route
 @app.route('/')
 def home_page():
@@ -49,19 +51,57 @@ def dashboard():
     user_id = get_jwt_identity()
     user = User.objects(id=user_id).first()
     activities = Activity.objects(user_id=user_id)
-    return render_template('dashboard.html', activities=activities)
+
+    # Toronto timezone definition
+    toronto_tz = pytz.timezone('America/Toronto')
+    today = datetime.now(tz=toronto_tz).date()
+
+    # Initialize lists to separate today's and past activities
+    today_activities = []
+    past_activities = []
+
+    # Split activities into today's and past activities
+    for activity in activities:
+        if activity.date.date() == today:
+            today_activities.append(activity)
+        else:
+            past_activities.append(activity)
+    
+    past_activities = sorted(past_activities, key=lambda activity: activity.date, reverse=True)
+
+    # Return the dashboard page with the filtered activities
+    return render_template('dashboard.html', today_activities=today_activities, past_activities=past_activities)
+
 
 # Add Activity route
 @app.route('/add-activity', methods=['GET', 'POST'])
 @jwt_required()
 def add_activity():
     user_id = get_jwt_identity()
+    toronto_tz = pytz.timezone('America/Toronto') 
+    today_date = datetime.today().strftime('%Y-%m-%d')
+
     if request.method == 'POST':
         data = request.form
+        activity_date = data.get('date')
+
+        if not activity_date:
+            activity_date = today_date
+        
+        if activity_date:
+            # Convert the date string to a datetime object with Toronto timezone
+            
+            activity_date = datetime.strptime(activity_date, '%Y-%m-%d')  # Convert string to datetime
+            activity_date = toronto_tz.localize(activity_date)  # Localize the date to Toronto time
+        else:
+            # If no date is provided, set it to the current date in Toronto time
+            activity_date = datetime.now(tz=toronto_tz)
+
         new_activity = Activity(
             user_id=user_id,
             type=data['type'],
-            distance=float(data['distance'])
+            distance=float(data['distance']),
+            date=activity_date
         )
         new_activity.save()
         return redirect(url_for('dashboard'))
@@ -144,4 +184,4 @@ def logout():
     return response
 
 if __name__ == '__main__':
-    app.run(port=5005)
+    app.run(debug=False, port=5005)
