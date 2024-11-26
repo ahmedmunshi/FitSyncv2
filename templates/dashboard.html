@@ -18,27 +18,54 @@
         <div class="dashboard">
             <div class="activity-container">
                 <!-- Loop through the activities dynamically -->
-                {% if activities %}
-                    {% for activity in activities %}
-                    <div class="activity">
-<h3>{{ activity.type | capitalize }} - {{ activity.distance }} km</h3>
+                <div class="today-activities">
+                    <h2>Today's Activities</h2>
+                    
+                    <div class="activity-container">
+                        {% if today_activities %}
+                            {% for activity in today_activities %}
+                                <div class="activity">
+                                    <h3>{{ activity.type | capitalize }} - {{ activity.distance }} km</h3>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <p>No activities for today.</p>
+                        {% endif %}
                     </div>
-                    {% endfor %}
-                {% else %}
-                    <p>No activities found.</p>
-                {% endif %}
+                </div>
+                <div class="button-container">
+                    <a href="/add-activity" class="button">Add Activity</a>
+                    <a href="/" class="button">Back to Home</a>
+                </div>
+                <div class="past-activities">
+                    <h2>Past Activities</h2>
+                    <div class="activity-container">
+                        {% if past_activities %}
+                            {% for activity in past_activities %}
+                                <div class="activity">
+                                    <h3>{{ activity.type | capitalize }} - {{ activity.distance }} km</h3>
+                                    <p>Date: {{ activity.date.strftime('%Y-%m-%d') }} (EST)</p>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <p>No past activities.</p>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
 
-            <div class="button-container">
-                <a href="/add-activity" class="button">Add Activity</a>
-                <a href="/" class="button">Back to Home</a>
-            </div>
+       
         </div>
     </div>
 
-    <footer>
-        &copy; 2024 FitSync. All rights reserved.
-    </footer>
+<footer class="text-center mt-5">
+    <p>
+         &copy; 2024 FitSync. All rights reserved.
+        Need help? Download the <a href="{{ url_for('static', filename='FitSync_User_Guide.pdf') }}" target="_blank">FitSync User Guide (PDF)</a>.
+    </p>
+</footer>
+
+
 </body>
 
 </html>
