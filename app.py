@@ -1,8 +1,8 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for, jsonify, make_response
+from flask import Flask, render_template, request, redirect, url_for, make_response
 from flask_mongoengine import MongoEngine
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, set_access_cookies, unset_jwt_cookies
-import jwt as pyjwt  # Import PyJWT library for manually decoding JWT tokens
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, set_access_cookies, \
+    unset_jwt_cookies
 from werkzeug.security import generate_password_hash, check_password_hash
 from validate_email_address import validate_email
 from dotenv import load_dotenv
@@ -27,22 +27,58 @@ app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=30)  # Extend the expira
 db = MongoEngine(app)
 jwt = JWTManager(app)
 
+
 # User model
 class User(db.Document):
     username = db.StringField(required=True, unique=True)
     password = db.StringField(required=True)
+    is_new_user = db.BooleanField(default=True)  # New user flag
+
 
 # Activity model
 class Activity(db.Document):
     user_id = db.ReferenceField(User, required=True)
     type = db.StringField(required=True)
     distance = db.FloatField(required=True)
-    date = db.DateTimeField(default=datetime.now(pytz.timezone('America/Toronto')))  # Default to Toronto's Eastern Time
-    
+    date = db.DateTimeField(default=datetime.now(pytz.timezone('America/Toronto')))
+
+
 # Home route
 @app.route('/')
 def home_page():
     return render_template('home.html')
+
+
+# Onboarding route
+@app.route('/onboarding', methods=['GET', 'POST'])
+@jwt_required()
+def onboarding():
+    user_id = get_jwt_identity()
+    user = User.objects(id=user_id).first()
+
+    # Redirect if the user is not new
+    if not user.is_new_user:
+        return redirect(url_for('dashboard'))
+
+    if request.method == 'POST':
+        sample_workout = request.form.get('sample_workout')
+        if sample_workout:
+            # Save the sample activity
+            new_activity = Activity(
+                user_id=user,
+                type="Sample Workout",
+                distance=float(sample_workout),
+            )
+            new_activity.save()
+
+            # Mark the user as no longer new
+            user.is_new_user = False
+            user.save()
+
+            return redirect(url_for('dashboard'))
+
+    return render_template('onboarding.html')
+
 
 # Dashboard route
 @app.route('/dashboard')
@@ -66,10 +102,9 @@ def dashboard():
             today_activities.append(activity)
         else:
             past_activities.append(activity)
-    
+
     past_activities = sorted(past_activities, key=lambda activity: activity.date, reverse=True)
 
-    # Return the dashboard page with the filtered activities
     return render_template('dashboard.html', today_activities=today_activities, past_activities=past_activities)
 
 
@@ -78,7 +113,7 @@ def dashboard():
 @jwt_required()
 def add_activity():
     user_id = get_jwt_identity()
-    toronto_tz = pytz.timezone('America/Toronto') 
+    toronto_tz = pytz.timezone('America/Toronto')
     today_date = datetime.today().strftime('%Y-%m-%d')
 
     if request.method == 'POST':
@@ -87,14 +122,12 @@ def add_activity():
 
         if not activity_date:
             activity_date = today_date
-        
+
         if activity_date:
             # Convert the date string to a datetime object with Toronto timezone
-            
-            activity_date = datetime.strptime(activity_date, '%Y-%m-%d')  # Convert string to datetime
-            activity_date = toronto_tz.localize(activity_date)  # Localize the date to Toronto time
+            activity_date = datetime.strptime(activity_date, '%Y-%m-%d')
+            activity_date = toronto_tz.localize(activity_date)
         else:
-            # If no date is provided, set it to the current date in Toronto time
             activity_date = datetime.now(tz=toronto_tz)
 
         new_activity = Activity(
@@ -107,44 +140,35 @@ def add_activity():
         return redirect(url_for('dashboard'))
     return render_template('add_activity.html')
 
+
 # Login route
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         data = request.form
-        email = data['username']  # Using username field for email
-        print(f"Attempting login for email: {email}")  # Debug statement
-        if not validate_email(email):
-            return "Invalid email address", 400
+        email = data['username']
+        password = data['password']
 
         user = User.objects(username=email).first()
-        if user:
-            print(f"User found: {user.username}")  # Debug statement
-            if check_password_hash(user.password, data['password']):
-                print("Password match!")  # Debug statement
-                token = create_access_token(identity=str(user.id))
-                print(f"Generated JWT: {token}")  # Debug statement to see the generated token
-                response = make_response(redirect(url_for('profile')))
-                set_access_cookies(response, token)
-                return response
-            else:
-                print("Password mismatch!")  # Debug statement
-        else:
-            print("User not found.")  # Debug statement
 
-        return "Invalid credentials", 401
+        if user and check_password_hash(user.password, password):
+            token = create_access_token(identity=str(user.id))
+            response = make_response(redirect(url_for('onboarding' if user.is_new_user else 'dashboard')))
+            set_access_cookies(response, token)
+            return response
+
     return render_template('login.html')
+
 
 # Registration route
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
         data = request.form
-        email = data['username']  # Using username field for email
+        email = data['username']
         if not validate_email(email):
             return "Invalid email address", 400
 
-        # Check if the username (email) already exists
         if User.objects(username=email).first():
             return "Username already exists. Please choose a different one.", 400
 
@@ -156,6 +180,7 @@ def register():
         return redirect(url_for('login'))
     return render_template('register.html')
 
+
 # Profile route
 @app.route('/profile')
 @jwt_required()
@@ -164,17 +189,18 @@ def profile():
     user = User.objects(id=user_id).first()
     return render_template('profile.html', user=user)
 
+
 # Forgot Password route
 @app.route('/forgot-password', methods=['GET', 'POST'])
 def forgot_password():
     if request.method == 'POST':
         email = request.form['email']
-        user = User.objects(username=email).first()  # Assuming username is the email
+        user = User.objects(username=email).first()
         if user:
-            # Here you would typically send an email with a reset link.
-            return "A reset link has been sent to your email address."  # Placeholder response
+            return "A reset link has been sent to your email address."
         return "Email not found.", 404
     return render_template('forgot_password.html')
+
 
 # Logout route
 @app.route('/logout')
@@ -182,6 +208,7 @@ def logout():
     response = make_response(redirect(url_for('home_page')))
     unset_jwt_cookies(response)
     return response
+
 
 if __name__ == '__main__':
     app.run(debug=False, port=5005)

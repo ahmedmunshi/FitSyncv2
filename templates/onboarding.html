@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to FitSync</title>
+     <link rel="stylesheet" href="/static/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <h1>Welcome to FitSync!</h1>
+    <p>Let us guide you through logging your first workout and learning how to track your fitness journey.</p>
+
+    <!-- Step-by-step guide -->
+    <div>
+        <h2>Step 1: Understand the Dashboard</h2>
+        <p>The dashboard displays all your logged activities and progress.</p>
+
+        <h2>Step 2: Log Your First Workout</h2>
+        <p>Enter a sample workout below to see how it works.</p>
+        <form method="POST" action="/onboarding">
+            <label for="sample_workout">Distance (km):</label>
+            <input type="number" step="0.1" id="sample_workout" name="sample_workout" required>
+            <button type="submit">Log Workout</button>
+        </form>
+    </div>
+</body>
+</html>
