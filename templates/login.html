@@ -1,48 +1,24 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - FitSync</title>
-    <link rel="stylesheet" href="/static/styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;700&display=swap" rel="stylesheet">
-</head>
-<body>
-    <header>
-        Welcome back
-    </header>
+{% extends "base.html" %}
 
-    <div class="container">
-        <div class="form-container">
-            <p>Please enter your details</p>
-            <form method="POST">
-                <label for="username">Email address</label>
-                <input type="text" name="username" required placeholder="Enter your email">
+{% block title %}Login - FitSync{% endblock %}
 
-                <label for="password">Password</label>
-                <input type="password" name="password" required placeholder="Your password must contain only numbers">
+{% block content %}
+<h1>Login</h1>
+<p>Welcome back! Please enter your login details.</p>
+<form method="POST">
+    <label for="username">Email address:</label>
+    <input type="text" name="username" required placeholder="Enter your email">
 
-                <div class="remember-me">
-                    <input type="checkbox" id="remember" name="remember">
-                    <label for="remember">Remember for 30 days</label>
-                </div>
+    <label for="password">Password:</label>
+    <input type="password" name="password" required placeholder="Enter your password">
 
-                <a href="/forgot-password" class="link">Forgot password?</a>
-                <button type="submit">Sign in</button>
-            </form>
-        </div>
-
-        <p>Don't have an account? <a href="/register" class="link">Register here.</a></p>
+    <div class="remember-me">
+        <input type="checkbox" id="remember" name="remember">
+        <label for="remember">Remember me for 30 days</label>
     </div>
 
-    <footer>
-        &copy; 2024 FitSync. All rights reserved.
-    </footer>
-</body>
-<footer class="text-center mt-5">
-    <p>
-        Need help? Download the <a href="{{ url_for('static', filename='FitSync_User_Guide.pdf') }}" target="_blank">FitSync User Guide (PDF)</a>.
-    </p>
-</footer>
-
-</html>
+    <a href="/forgot-password">Forgot password?</a>
+    <button type="submit">Login</button>
+</form>
+<p>Don't have an account? <a href="/register">Register here.</a></p>
+{% endblock %}

@@ -1,31 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - FitSync</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-</head>
-<body>
-    <div class="container">
-        <h1>Create an account</h1>
-        <p>Please fill in your details</p>
-        <form method="POST" class="form">
-            <label for="username">Email address</label>
-            <input type="text" name="username" required placeholder="Enter your email">
+{% extends "base.html" %}
 
-            <label for="password">Password</label>
-            <input type="password" name="password" required placeholder="Create a password">
+{% block title %}Register - FitSync{% endblock %}
 
-            <button type="submit" class="cta-button">Register</button>
-        </form>
-        <p>Already have an account? <a href="/login">Login here.</a></p>
-    </div>
-</body>
-<footer class="text-center mt-5">
-    <p>
-        &copy; 2024 FitSync. All rights reserved.
-        Need help? Download the <a href="{{ url_for('static', filename='FitSync_User_Guide.pdf') }}" target="_blank">FitSync User Guide (PDF)</a>.
-    </p>
-</html>
+{% block content %}
+<h1>Register</h1>
+<p>Create your account to start tracking your fitness journey.</p>
+<form method="POST">
+    <label for="username">Email address:</label>
+    <input type="text" name="username" required placeholder="Enter your email">
 
+    <label for="password">Password:</label>
+    <input type="password" name="password" required placeholder="Create a password">
+
+    <button type="submit">Register</button>
+</form>
+<p>Already have an account? <a href="/login">Login here.</a></p>
+{% endblock %}

@@ -3,49 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FitSync</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>Welcome to FitSync</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <header>
-        <h1>FitSync</h1>
-        <nav>
-            <ul class="nav-list">
-                <li><a href="/dashboard" class="nav-link">Dashboard</a></li>
-                <li><a href="/add-activity" class="nav-link">Add Activity</a></li>
-                <li><a href="/profile" id="profile-link" class="nav-link" style="display: none;">Profile</a></li>
-                <li><a href="/login" id="login-link" class="nav-link">Login</a></li>
-                <li><a href="/register" id="register-link" class="nav-link">Register</a></li>
-                <li><a href="/logout" id="logout-link" class="nav-link" style="display: none;">Logout</a></li>
-            </ul>
-        </nav>
-    </header>
-
-    <main>
-        <!-- Main content here -->
-    </main>
-
-    <footer>
-        <p>&copy; 2024 FitSync. All rights reserved.</p>
-    </footer>
-
-    <script>
-        // JavaScript to toggle profile link, login/register links, and user info if JWT token is available
-        document.addEventListener('DOMContentLoaded', function() {
-            const jwtToken = document.cookie.split('; ').find(row => row.startsWith('jwt='));
-            if (jwtToken) {
-                document.getElementById('login-link').style.display = 'none';
-                document.getElementById('register-link').style.display = 'none';
-                document.getElementById('profile-link').style.display = 'block';
-                document.getElementById('logout-link').style.display = 'block';
-            }
-        });
-    </script>
+    <div class="home-content">
+        <h1>Welcome to FitSync!</h1>
+        <p>Your personal fitness tracking companion.</p>
+        <a href="/login" class="button">Login</a>
+        <a href="/register" class="button">Register</a>
+    </div>
 </body>
-<footer class="text-center mt-5">
-    <p>
-        Need help? Download the <a href="{{ url_for('static', filename='FitSync_User_Guide.pdf') }}" target="_blank">FitSync User Guide (PDF)</a>.
-    </p>
-</footer>
-
 </html>

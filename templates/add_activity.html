@@ -1,37 +1,22 @@
-<!-- templates/add_activity.html -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Activity - FitSync</title>
-    <link rel="stylesheet" href="/static/styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;700&display=swap" rel="stylesheet">
-</head>
-<body>
-    <div class="container">
-    <h1>Add Activity</h1>
-    <p>Form to add new activities will go here.</p>
-    <form method="POST">
-        <label for="activity-type">Activity Type:</label>
-        <input type="text" id="activity-type" name="type" required>
+{% extends "base.html" %}
 
-        <label for="distance">Distance (km):</label>
-        <input type="number" id="distance" name="distance" step="0.01" required>
+{% block title %}Add Activity - FitSync{% endblock %}
 
-        <label for="date">Date (YYYY-MM-DD)</label>
-        <input type="date" name="date" id="date" value="{{ today_date }}">
-    
+{% block content %}
+<h1>Add Activity</h1>
+<form method="POST">
+    <label for="activity-type">Activity Type:</label>
+    <input type="text" id="activity-type" name="type" required>
 
-        <button type="submit">Add Activity</button>
-    </form>
-    <a href="/" class="button">Back to Home</a>
-    </div>
-</body>
-<footer class="text-center mt-5">
-    <p>
-        Need help? Download the <a href="{{ url_for('static', filename='FitSync_User_Guide.pdf') }}" target="_blank">FitSync User Guide (PDF)</a>.
-    </p>
-</footer>
+    <label for="distance">Distance (km):</label>
+    <input type="number" id="distance" name="distance" step="0.01" required>
 
-</html>
+    <label for="date">Date (YYYY-MM-DD):</label>
+    <input type="date" name="date" id="date" value="{{ today_date }}">
+
+    <label for="note">Note:</label>
+    <textarea id="note" name="note" rows="4" cols="50" placeholder="Add any notes about your workout..."></textarea>
+
+    <button type="submit">Add Activity</button>
+</form>
+{% endblock %}

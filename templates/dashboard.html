@@ -1,71 +1,36 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - FitSync</title>
-    <link rel="stylesheet" href="/static/styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;700&display=swap" rel="stylesheet">
-</head>
+{% block title %}Dashboard - FitSync{% endblock %}
 
-<body>
-    <header>
-        Your Activities
-    </header>
+{% block content %}
+<h1>Dashboard</h1>
+<h2>Today's Activities</h2>
+<ul>
+    {% for activity in today_activities %}
+    <li>
+        <strong>{{ activity.type }}</strong> - {{ activity.distance }} km on {{ activity.date.strftime('%Y-%m-%d') }}
+        <br>
+        {% if activity.note %}
+        <em>Note: {{ activity.note }}</em>
+        {% else %}
+        <em>No notes added.</em>
+        {% endif %}
+    </li>
+    {% endfor %}
+</ul>
 
-    <div class="container">
-        <div class="dashboard">
-            <div class="activity-container">
-                <!-- Loop through the activities dynamically -->
-                <div class="today-activities">
-                    <h2>Today's Activities</h2>
-                    
-                    <div class="activity-container">
-                        {% if today_activities %}
-                            {% for activity in today_activities %}
-                                <div class="activity">
-                                    <h3>{{ activity.type | capitalize }} - {{ activity.distance }} km</h3>
-                                </div>
-                            {% endfor %}
-                        {% else %}
-                            <p>No activities for today.</p>
-                        {% endif %}
-                    </div>
-                </div>
-                <div class="button-container">
-                    <a href="/add-activity" class="button">Add Activity</a>
-                    <a href="/" class="button">Back to Home</a>
-                </div>
-                <div class="past-activities">
-                    <h2>Past Activities</h2>
-                    <div class="activity-container">
-                        {% if past_activities %}
-                            {% for activity in past_activities %}
-                                <div class="activity">
-                                    <h3>{{ activity.type | capitalize }} - {{ activity.distance }} km</h3>
-                                    <p>Date: {{ activity.date.strftime('%Y-%m-%d') }} (EST)</p>
-                                </div>
-                            {% endfor %}
-                        {% else %}
-                            <p>No past activities.</p>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-
-       
-        </div>
-    </div>
-
-<footer class="text-center mt-5">
-    <p>
-         &copy; 2024 FitSync. All rights reserved.
-        Need help? Download the <a href="{{ url_for('static', filename='FitSync_User_Guide.pdf') }}" target="_blank">FitSync User Guide (PDF)</a>.
-    </p>
-</footer>
-
-
-</body>
-
-</html>
+<h2>Past Activities</h2>
+<ul>
+    {% for activity in past_activities %}
+    <li>
+        <strong>{{ activity.type }}</strong> - {{ activity.distance }} km on {{ activity.date.strftime('%Y-%m-%d') }}
+        <br>
+        {% if activity.note %}
+        <em>Note: {{ activity.note }}</em>
+        {% else %}
+        <em>No notes added.</em>
+        {% endif %}
+    </li>
+    {% endfor %}
+</ul>
+{% endblock %}
