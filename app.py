@@ -1,13 +1,13 @@
 import os
 from flask import Flask, render_template, request, redirect, url_for, make_response
 from flask_mongoengine import MongoEngine
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, set_access_cookies, \
-    unset_jwt_cookies
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, set_access_cookies, unset_jwt_cookies
 from werkzeug.security import generate_password_hash, check_password_hash
 from validate_email_address import validate_email
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
 import pytz
+from models import User, Activity  # Ensure models are imported
 
 app = Flask(__name__)
 load_dotenv()  # Load environment variables from .env file
@@ -26,21 +26,6 @@ app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=30)  # Extend the expira
 
 db = MongoEngine(app)
 jwt = JWTManager(app)
-
-
-# User model
-class User(db.Document):
-    username = db.StringField(required=True, unique=True)
-    password = db.StringField(required=True)
-    is_new_user = db.BooleanField(default=True)  # New user flag
-
-
-# Activity model
-class Activity(db.Document):
-    user_id = db.ReferenceField(User, required=True)
-    type = db.StringField(required=True)
-    distance = db.FloatField(required=True)
-    date = db.DateTimeField(default=datetime.now(pytz.timezone('America/Toronto')))
 
 
 # Home route
@@ -68,6 +53,7 @@ def onboarding():
                 user_id=user,
                 type="Sample Workout",
                 distance=float(sample_workout),
+                note="This is a sample activity"  # Default note for onboarding
             )
             new_activity.save()
 
@@ -78,34 +64,6 @@ def onboarding():
             return redirect(url_for('dashboard'))
 
     return render_template('onboarding.html')
-
-
-# Dashboard route
-@app.route('/dashboard')
-@jwt_required()
-def dashboard():
-    user_id = get_jwt_identity()
-    user = User.objects(id=user_id).first()
-    activities = Activity.objects(user_id=user_id)
-
-    # Toronto timezone definition
-    toronto_tz = pytz.timezone('America/Toronto')
-    today = datetime.now(tz=toronto_tz).date()
-
-    # Initialize lists to separate today's and past activities
-    today_activities = []
-    past_activities = []
-
-    # Split activities into today's and past activities
-    for activity in activities:
-        if activity.date.date() == today:
-            today_activities.append(activity)
-        else:
-            past_activities.append(activity)
-
-    past_activities = sorted(past_activities, key=lambda activity: activity.date, reverse=True)
-
-    return render_template('dashboard.html', today_activities=today_activities, past_activities=past_activities)
 
 
 # Add Activity route
@@ -119,6 +77,7 @@ def add_activity():
     if request.method == 'POST':
         data = request.form
         activity_date = data.get('date')
+        note = data.get('note', "No notes added")  # Default value for note
 
         if not activity_date:
             activity_date = today_date
@@ -134,11 +93,49 @@ def add_activity():
             user_id=user_id,
             type=data['type'],
             distance=float(data['distance']),
-            date=activity_date
+            date=activity_date,
+            note=note  # Save the note
         )
         new_activity.save()
         return redirect(url_for('dashboard'))
-    return render_template('add_activity.html')
+    return render_template('add_activity.html', today_date=today_date)
+
+
+# Dashboard route
+@app.route('/dashboard')
+@jwt_required()
+def dashboard():
+    user_id = get_jwt_identity()
+    try:
+        activities = Activity.objects(user_id=user_id)
+
+        # Ensure missing `note` fields are dynamically handled
+        for activity in activities:
+            if not hasattr(activity, 'note'):
+                activity.note = "No notes added"
+
+        # Toronto timezone definition
+        toronto_tz = pytz.timezone('America/Toronto')
+        today = datetime.now(toronto_tz).date()
+
+        # Initialize lists to separate today's and past activities
+        today_activities = []
+        past_activities = []
+
+        # Split activities into today's and past activities
+        for activity in activities:
+            if activity.date.date() == today:
+                today_activities.append(activity)
+            else:
+                past_activities.append(activity)
+
+        past_activities = sorted(past_activities, key=lambda activity: activity.date, reverse=True)
+
+        return render_template('dashboard.html', today_activities=today_activities, past_activities=past_activities)
+
+    except Exception as e:
+        print(f"Error occurred in dashboard: {e}")
+        return render_template('error.html', message="An error occurred while loading the dashboard.")
 
 
 # Login route

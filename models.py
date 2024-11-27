@@ -7,7 +7,8 @@ class User(Document):
     is_new_user = BooleanField(default=True)  # Track if the user is new
 
 class Activity(Document):
-    user_id = ReferenceField(User)
+    user_id = ReferenceField(User, required=True)
     type = StringField(required=True)
     distance = FloatField(required=True)
     date = DateTimeField(default=datetime.utcnow)
+    note = StringField(default="No notes added")  # Add default value for note
