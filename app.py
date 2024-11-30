@@ -7,7 +7,7 @@ from validate_email_address import validate_email
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
 import pytz
-from models import User, Activity  # Ensure models are imported
+from models import User, Activity, Weight  # Ensure models are imported
 
 app = Flask(__name__)
 load_dotenv()  # Load environment variables from .env file
@@ -177,6 +177,64 @@ def register():
         return redirect(url_for('login'))
     return render_template('register.html')
 
+
+# Add Weight Entry route
+@app.route('/add-weight', methods=['GET', 'POST'])
+@jwt_required()
+def add_weight():
+    user_id = get_jwt_identity()
+    toronto_tz = pytz.timezone('America/Toronto')
+    today_date = datetime.today().strftime('%Y-%m-%d')
+
+    if request.method == 'POST':
+        data = request.form
+        weight_value = data.get('weight')
+        weight_date = data.get('date', today_date)
+
+        if weight_date:
+            # Convert the date string to a datetime object with Toronto timezone
+            weight_date = datetime.strptime(weight_date, '%Y-%m-%d')
+            weight_date = toronto_tz.localize(weight_date)
+        else:
+            weight_date = datetime.now(tz=toronto_tz)
+
+        new_weight_entry = Weight(
+            user_id=user_id,
+            weight=float(weight_value),
+            date=weight_date
+        )
+        new_weight_entry.save()
+        return redirect(url_for('weight_history'))
+
+    return render_template('add_weight.html', today_date=today_date)
+
+
+# Weight History route
+@app.route('/weight-history')
+@jwt_required()
+def weight_history():
+    user_id = get_jwt_identity()
+    try:
+        weights = Weight.objects(user_id=user_id)
+
+        # Calculate weight trend
+        weight_entries = list(weights)
+        if weight_entries:
+            current_weight = weight_entries[0].weight
+            initial_weight = weight_entries[-1].weight
+            weight_change = current_weight - initial_weight
+        else:
+            current_weight = initial_weight = weight_change = None
+
+        return render_template('weight_history.html',
+                               weights=weights,
+                               current_weight=current_weight,
+                               initial_weight=initial_weight,
+                               weight_change=weight_change)
+
+    except Exception as e:
+        print(f"Error occurred in weight history: {e}")
+        return render_template('error.html', message="An error occurred while loading weight history.")
 
 # Profile route
 @app.route('/profile')
