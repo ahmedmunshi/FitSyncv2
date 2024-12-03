@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Weight History</h2>
+
+{% if current_weight %}
+<div class="weight-summary">
+    <p>Current Weight: {{ current_weight }} kg</p>
+    <p>Initial Weight: {{ initial_weight }} kg</p>
+    <p>Total Weight Change: {{ weight_change }} kg</p>
+</div>
+{% endif %}
+
+<table>
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Weight</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for entry in weights %}
+        <tr>
+            <td>{{ entry.date.strftime('%Y-%m-%d') }}</td>
+            <td>{{ entry.weight }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
